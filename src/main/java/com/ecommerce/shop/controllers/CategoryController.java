@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,11 +20,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("api")
 public class CategoryController {
 
    private final CategoryServiceI categoryServiceI;
 
-    @GetMapping("/api/public/categories")
+    @GetMapping("/public/categories")
     public  ResponseEntity<ApiResponse> getCategories(){
         try {
             List<Category> categoryList = categoryServiceI.getCategories();
@@ -33,7 +35,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/api/public/categories")
+    @PostMapping("/public/categories")
     public ResponseEntity<ApiResponse> createCategory(@RequestBody Category category) {
         try {
             categoryServiceI.createCategory(category);
@@ -43,7 +45,7 @@ public class CategoryController {
         }
     }
 
-    @DeleteMapping("/api/public/categories/{categoryId}")
+    @DeleteMapping("/public/categories/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable  Long categoryId) {
 
         try {
@@ -54,7 +56,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/api/public/categories/{categoryId}")
+    @PostMapping("/public/categories/{categoryId}")
     public ResponseEntity<ApiResponse> updateCategory(@PathVariable  Category category, @PathVariable Long categoryId) {
 
         try {
