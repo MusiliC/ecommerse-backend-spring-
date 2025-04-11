@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -23,47 +24,30 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api")
 public class CategoryController {
 
-   private final CategoryServiceI categoryServiceI;
+    private final CategoryServiceI categoryServiceI;
 
     @GetMapping("/public/categories")
-    public  ResponseEntity<ApiResponse> getCategories(){
-        try {
-            List<Category> categoryList = categoryServiceI.getCategories();
-            return ResponseEntity.ok(new ApiResponse("Success", categoryList));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error", HttpStatus.INTERNAL_SERVER_ERROR));
-        }
+    public ResponseEntity<ApiResponse> getCategories() {
+        List<Category> categoryList = categoryServiceI.getCategories();
+        return ResponseEntity.ok(new ApiResponse("Success", categoryList));
     }
 
     @PostMapping("/public/categories")
-    public ResponseEntity<ApiResponse> createCategory(@RequestBody Category category) {
-        try {
-            categoryServiceI.createCategory(category);
-            return ResponseEntity.ok(new ApiResponse("Success", category));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), null));
-        }
+    public ResponseEntity<ApiResponse> createCategory(@Valid @RequestBody Category category) {
+        categoryServiceI.createCategory(category);
+        return ResponseEntity.ok(new ApiResponse("Success", category));
     }
 
     @DeleteMapping("/public/categories/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable  Long categoryId) {
-
-        try {
-            String status = categoryServiceI.deleteCategory(categoryId);
-            return new ResponseEntity<>(status, HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
-        }
+    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
+        String status = categoryServiceI.deleteCategory(categoryId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @PostMapping("/public/categories/{categoryId}")
-    public ResponseEntity<ApiResponse> updateCategory(@RequestBody  Category category, @PathVariable Long categoryId) {
+    public ResponseEntity<ApiResponse> updateCategory(@RequestBody Category category, @PathVariable Long categoryId) {
 
-        try {
-            Category savedCategory = categoryServiceI.updateCategory(category, categoryId);
-            return ResponseEntity.ok(new ApiResponse("Success", savedCategory));
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        Category savedCategory = categoryServiceI.updateCategory(category, categoryId);
+        return ResponseEntity.ok(new ApiResponse("Success", savedCategory));
     }
 }
