@@ -13,7 +13,7 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import lombok.NoArgsConstructor;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -29,10 +29,12 @@ public class ProductServiceImpl implements ProductServiceI {
 
 
     @Override
-    public ProductDto addProduct(Product product, Long categoryId) {
+    public ProductDto addProduct(ProductDto productDtoReq, Long categoryId) {
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        Product product = modelMapper.map(productDtoReq, Product.class);
 
         product.setCategory(category);
         double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
@@ -97,5 +99,33 @@ public class ProductServiceImpl implements ProductServiceI {
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(productDtos);
         return productResponse;
+    }
+
+    @Override
+    public ProductDto updateProduct(Long id, ProductDto productDtoReq) {
+
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", id));
+
+        existingProduct.setProductName(productDtoReq.getProductName());
+        existingProduct.setDescription(productDtoReq.getDescription());
+        existingProduct.setQuantity(productDtoReq.getQuantity());
+        existingProduct.setDiscount(productDtoReq.getDiscount());
+        existingProduct.setPrice(productDtoReq.getPrice());
+        existingProduct.setSpecialPrice(productDtoReq.getPrice() - ((productDtoReq.getDiscount() * 0.01) * productDtoReq.getPrice()));
+
+        Product updatedProduct = productRepository.save(existingProduct);
+        ProductDto productDto = modelMapper.map(updatedProduct, ProductDto.class);
+        return productDto;
+    }
+
+    @Override
+    public String deleteProduct(Long id) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", id));
+
+        productRepository.delete(existingProduct);
+       String message = "Product deleted successfully";
+        return message;
     }
 }
