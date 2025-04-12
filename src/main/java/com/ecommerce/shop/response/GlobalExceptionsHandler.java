@@ -27,35 +27,31 @@ public class GlobalExceptionsHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("success", false);
-        map.put("message", ex.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        String message = ex.getMessage();
+        ApiResponse apiResponse = new ApiResponse(false, message);
+        return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<Map<String, Object>> handleAPIException(APIException ex) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("success", false);
-        map.put("message", ex.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponse> handleAPIException(APIException ex) {
+        String message = ex.getMessage();
+        ApiResponse apiResponse = new ApiResponse(false, message);
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("success", false);
-        map.put("message", ex.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException ex) {
+        String message = ex.getMessage();
+        ApiResponse apiResponse = new ApiResponse(false, message);
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("success", false);
-        map.put("message", ex.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiResponse> handleException(Exception ex) {
+        String message = ex.getMessage();
+        ApiResponse apiResponse = new ApiResponse(false, message);
+        return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
