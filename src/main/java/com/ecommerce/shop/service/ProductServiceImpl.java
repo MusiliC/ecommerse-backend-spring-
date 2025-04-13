@@ -42,26 +42,38 @@ public class ProductServiceImpl implements ProductServiceI {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        Product product = modelMapper.map(productDtoReq, Product.class);
+        boolean ifProductNotPresent = true;
 
-        product.setCategory(category);
-        double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
-        product.setImage("Default.png");
-        product.setSpecialPrice(specialPrice);
-        Product savedProduct = productRepository.save(product);
+        List<Product> products = category.getProducts();
 
-        ProductDto productDto = modelMapper.map(savedProduct, ProductDto.class);
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getProductName().equalsIgnoreCase(productDtoReq.getProductName())) {
+                ifProductNotPresent = false;
+                break;
+            }
+        }
 
-        return productDto;
+        if (ifProductNotPresent) {
+
+            Product product = modelMapper.map(productDtoReq, Product.class);
+
+            product.setCategory(category);
+            double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
+            product.setImage("Default.png");
+            product.setSpecialPrice(specialPrice);
+            Product savedProduct = productRepository.save(product);
+
+            ProductDto productDto = modelMapper.map(savedProduct, ProductDto.class);
+
+            return productDto;
+        } else {
+            throw new APIException("Product already exists!");
+        }
     }
 
     @Override
     public ProductResponse getAllProducts() {
         List<Product> products = productRepository.findAll();
-
-        if (products.isEmpty()) {
-            throw new APIException("No Products found");
-        }
 
         List<ProductDto> productDtos = products.stream()
                 .map(product -> modelMapper.map(product, ProductDto.class))

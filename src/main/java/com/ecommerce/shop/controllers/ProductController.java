@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -29,8 +30,8 @@ public class ProductController {
     private final ProductServiceI productService;
 
     @PostMapping("/admin/categories/{categoryId}/products")
-    public ResponseEntity<ApiResponse> addProduct(@RequestBody ProductDto productDtoRes, @PathVariable Long categoryId) {
-        ProductDto productDto = productService.addProduct(productDtoRes, categoryId);
+    public ResponseEntity<ApiResponse> addProduct(@Valid @RequestBody ProductDto productDtoReq, @PathVariable Long categoryId) {
+        ProductDto productDto = productService.addProduct(productDtoReq, categoryId);
         return new ResponseEntity<>(
                 new ApiResponse(true, productDto),
                 HttpStatus.CREATED
@@ -65,7 +66,7 @@ public class ProductController {
     }
 
     @PutMapping("/admin/products/{id}")
-    public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long id, @RequestBody ProductDto productReqDto) {
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long id,@Valid @RequestBody ProductDto productReqDto) {
         ProductDto productDto = productService.updateProduct(id, productReqDto);
         return new ResponseEntity<>(
                 new ApiResponse(true, productDto),
