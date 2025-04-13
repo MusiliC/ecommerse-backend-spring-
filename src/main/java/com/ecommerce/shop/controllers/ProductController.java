@@ -5,6 +5,7 @@ import com.ecommerce.shop.payload.ProductDto;
 import com.ecommerce.shop.payload.ProductResponse;
 import com.ecommerce.shop.response.ApiResponse;
 import com.ecommerce.shop.service.ProductServiceI;
+import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
@@ -75,6 +78,15 @@ public class ProductController {
         String productDto = productService.deleteProduct(id);
         return new ResponseEntity<>(
                 new ApiResponse(true, productDto),
+                HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/products/{productId}/image")
+    public ResponseEntity<ApiResponse> uploadProductImage(@PathVariable Long productId, @RequestParam("image")MultipartFile image) throws IOException {
+        ProductDto product = productService.uploadProductImage(productId, image);
+        return new ResponseEntity<>(
+                new ApiResponse(true, product),
                 HttpStatus.OK
         );
     }
