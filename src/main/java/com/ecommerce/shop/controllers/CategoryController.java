@@ -1,12 +1,10 @@
 package com.ecommerce.shop.controllers;
 
 import com.ecommerce.shop.config.AppConstants;
-import com.ecommerce.shop.models.Category;
 import com.ecommerce.shop.payload.CategoryDto;
 import com.ecommerce.shop.payload.CategoryResponse;
 import com.ecommerce.shop.response.ApiResponse;
 import com.ecommerce.shop.service.CategoryServiceI;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +31,7 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getCategories(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_CATEGORIES_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) String sortOrder
     ) {
         CategoryResponse categoryList = categoryServiceI.getCategories(pageNumber, pageSize, sortBy, sortOrder);
