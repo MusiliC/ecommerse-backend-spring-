@@ -5,6 +5,7 @@ import com.ecommerce.shop.exceptions.APIException;
 import com.ecommerce.shop.exceptions.ResourceNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.naming.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -14,6 +15,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionsHandler {
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse> customAuthExceptionHandling(AuthenticationException e) {
+        String customMessage = "Incorrect credentials";
+        ApiResponse apiResponse = new ApiResponse(false, customMessage);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> customMethodNotValidException(MethodArgumentNotValidException e) {
