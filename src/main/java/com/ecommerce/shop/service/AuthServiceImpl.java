@@ -121,11 +121,31 @@ public class AuthServiceImpl implements AuthServiceI {
         LoginResponse res = new LoginResponse(
                 userDetails.getId(),
                 userDetails.getUsername(),
-                roles
+                roles,
+                jwt.toString()
         );
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwt.toString())
+                .body(res);
+    }
+
+    @Override
+    public ResponseEntity<LoginResponse> getCurrentUser(Authentication authentication) {
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .toList();
+
+        LoginResponse res = new LoginResponse(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                roles
+        );
+
+        return ResponseEntity.ok()
                 .body(res);
     }
 

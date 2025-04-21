@@ -9,10 +9,14 @@ import com.ecommerce.shop.security.dtos.SignUpRequest;
 import com.ecommerce.shop.security.jwt.JwtUtils;
 import com.ecommerce.shop.service.AuthServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,5 +70,21 @@ public class AuthController {
     @PostMapping("login")
     public ResponseEntity<?> authenticateUserWithCookie(@Valid @RequestBody LoginRequest loginRequest) {
         return authServiceI.authenticateUserWithCookie(loginRequest);
+    }
+
+
+    @GetMapping("user")
+    public ResponseEntity<LoginResponse> getCurrentUser(Authentication authentication) {
+
+        return authServiceI.getCurrentUser(authentication);
+
+    }
+
+    @PostMapping("signout")
+    public ResponseEntity<?> logoutUser() {
+        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse(true, "You've been signed out!"));
     }
 }

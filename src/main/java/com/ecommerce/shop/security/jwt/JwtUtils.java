@@ -1,6 +1,7 @@
 package com.ecommerce.shop.security.jwt;
 
 
+import com.ecommerce.shop.config.AppConstants;
 import com.ecommerce.shop.security.services.UserDetailsImpl;
 import java.security.Key;
 import java.util.Date;
@@ -30,8 +31,7 @@ public class JwtUtils {
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${spring.app.jwtCookie}")
-    private String jwtCookie;
+    private String jwtCookie = AppConstants.COOKIE_NAME;
 
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
@@ -115,5 +115,12 @@ public class JwtUtils {
 
         return false;
 
+    }
+
+    public ResponseCookie getCleanJwtCookie() {
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
+                .path("/api")
+                .build();
+        return cookie;
     }
 }

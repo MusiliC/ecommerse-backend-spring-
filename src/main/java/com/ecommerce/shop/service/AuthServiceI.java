@@ -4,7 +4,7 @@ import com.ecommerce.shop.security.dtos.LoginRequest;
 import com.ecommerce.shop.security.dtos.LoginResponse;
 import com.ecommerce.shop.security.dtos.SignUpRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.Authentication;
 
 public interface AuthServiceI {
 
@@ -13,4 +13,6 @@ public interface AuthServiceI {
     LoginResponse authenticateUser(LoginRequest loginRequest);
 
     ResponseEntity<?> authenticateUserWithCookie(LoginRequest loginRequest);
+
+    ResponseEntity<LoginResponse> getCurrentUser(Authentication authentication);
 }
