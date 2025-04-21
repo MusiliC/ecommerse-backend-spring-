@@ -17,7 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -82,6 +84,7 @@ public class AuthServiceImpl implements AuthServiceI {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         String jwt = jwtUtils.generateTokenFromUsername(userDetails);
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .toList();
@@ -92,6 +95,38 @@ public class AuthServiceImpl implements AuthServiceI {
                 roles,
                 jwt
         );
+
+
+    }
+
+    @Override
+    public ResponseEntity<?> authenticateUserWithCookie(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+
+        ResponseCookie jwt = jwtUtils.generateJwtCookie(userDetails);
+        System.out.println("JWT Cookie: " + jwt.toString());
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .toList();
+
+        LoginResponse res = new LoginResponse(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                roles
+        );
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwt.toString())
+                .body(res);
     }
 
 

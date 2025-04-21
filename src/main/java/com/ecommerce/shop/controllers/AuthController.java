@@ -43,7 +43,7 @@ public class AuthController {
     private JwtUtils jwtUtils;
 
     @PostMapping("signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         String res = authServiceI.registerUser(signUpRequest);
         return new ResponseEntity<>(
                 new ApiResponse(true, res),
@@ -61,5 +61,10 @@ public class AuthController {
                 HttpStatus.CREATED
         );
 
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<?> authenticateUserWithCookie(@Valid @RequestBody LoginRequest loginRequest) {
+        return authServiceI.authenticateUserWithCookie(loginRequest);
     }
 }
