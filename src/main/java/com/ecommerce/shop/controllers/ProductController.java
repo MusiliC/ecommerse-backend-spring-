@@ -1,8 +1,8 @@
 package com.ecommerce.shop.controllers;
 
 import com.ecommerce.shop.config.AppConstants;
-import com.ecommerce.shop.payload.ProductDto;
-import com.ecommerce.shop.payload.ProductResponse;
+import com.ecommerce.shop.dtos.ProductDto;
+import com.ecommerce.shop.dtos.ProductResponse;
 import com.ecommerce.shop.response.ApiResponse;
 import com.ecommerce.shop.service.ProductServiceI;
 import java.io.IOException;

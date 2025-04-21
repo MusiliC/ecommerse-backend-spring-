@@ -1,9 +1,7 @@
 package com.ecommerce.shop.service;
 
-import com.ecommerce.shop.models.Category;
-import com.ecommerce.shop.payload.CategoryDto;
-import com.ecommerce.shop.payload.CategoryResponse;
-import java.util.List;
+import com.ecommerce.shop.dtos.CategoryDto;
+import com.ecommerce.shop.dtos.CategoryResponse;
 
 public interface CategoryServiceI {
 

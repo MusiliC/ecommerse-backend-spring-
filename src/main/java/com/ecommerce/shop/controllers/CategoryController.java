@@ -1,8 +1,8 @@
 package com.ecommerce.shop.controllers;
 
 import com.ecommerce.shop.config.AppConstants;
-import com.ecommerce.shop.payload.CategoryDto;
-import com.ecommerce.shop.payload.CategoryResponse;
+import com.ecommerce.shop.dtos.CategoryDto;
+import com.ecommerce.shop.dtos.CategoryResponse;
 import com.ecommerce.shop.response.ApiResponse;
 import com.ecommerce.shop.service.CategoryServiceI;
 import org.springframework.http.ResponseEntity;
