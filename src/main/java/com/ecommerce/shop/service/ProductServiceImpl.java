@@ -1,12 +1,15 @@
 package com.ecommerce.shop.service;
 
 
+import com.ecommerce.shop.dtos.CartDto;
 import com.ecommerce.shop.exceptions.APIException;
 import com.ecommerce.shop.exceptions.ResourceNotFoundException;
+import com.ecommerce.shop.models.Cart;
 import com.ecommerce.shop.models.Category;
 import com.ecommerce.shop.models.Product;
 import com.ecommerce.shop.dtos.ProductDto;
 import com.ecommerce.shop.dtos.ProductResponse;
+import com.ecommerce.shop.repository.CartRepository;
 import com.ecommerce.shop.repository.CategoryRepository;
 import com.ecommerce.shop.repository.ProductRepository;
 import java.io.IOException;
@@ -35,6 +38,10 @@ public class ProductServiceImpl implements ProductServiceI {
     private final ModelMapper modelMapper;
 
     private final FileService fileService;
+
+    private final CartService cartService;
+
+    private final CartRepository cartRepository;
 
     @Value("${project.image}")
     private String path;
@@ -109,7 +116,7 @@ public class ProductServiceImpl implements ProductServiceI {
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
-        Page<Product> pageProducts = productRepository.findByCategoryOrderByPriceAsc(category,pageDetails);
+        Page<Product> pageProducts = productRepository.findByCategoryOrderByPriceAsc(category, pageDetails);
 
         List<Product> products = pageProducts.getContent();
 
@@ -160,10 +167,10 @@ public class ProductServiceImpl implements ProductServiceI {
     }
 
     @Override
-    public ProductDto updateProduct(Long id, ProductDto productDtoReq) {
+    public ProductDto updateProduct(Long productId, ProductDto productDtoReq) {
 
-        Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", id));
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
 
         existingProduct.setProductName(productDtoReq.getProductName());
         existingProduct.setDescription(productDtoReq.getDescription());
@@ -173,14 +180,34 @@ public class ProductServiceImpl implements ProductServiceI {
         existingProduct.setSpecialPrice(productDtoReq.getPrice() - ((productDtoReq.getDiscount() * 0.01) * productDtoReq.getPrice()));
 
         Product updatedProduct = productRepository.save(existingProduct);
+
+        List<Cart> carts = cartRepository.findCartsByProductId(productId);
+
+        List<CartDto> cartDtos = carts.stream().map(cart -> {
+            CartDto cartDto = modelMapper.map(cart, CartDto.class);
+
+            List<ProductDto> products = cart.getCartItems().stream()
+                    .map(p -> modelMapper.map(p, ProductDto.class)).toList();
+
+            cartDto.setProducts(products);
+
+            return cartDto;
+        }).toList();
+
+        cartDtos.forEach(cart -> cartService.updateProductsInCart(cart.getCartId(), productId));
+
         ProductDto productDto = modelMapper.map(updatedProduct, ProductDto.class);
         return productDto;
     }
 
     @Override
-    public String deleteProduct(Long id) {
-        Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", id));
+    public String deleteProduct(Long productId) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        List<Cart> carts = cartRepository.findCartsByProductId(productId);
+
+        carts.forEach(cart -> cartService.deleteProductFromCart(cart.getCartId(), productId));
 
         productRepository.delete(existingProduct);
         String message = "Product deleted successfully";
