@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -21,6 +22,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,31 +69,54 @@ public class WebSecurityConfig {
         return builder.getAuthenticationManager();
     }
 
+
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/h2-console/**").permitAll()
-                                .requestMatchers("/api/admin/**").permitAll()
-                               .requestMatchers("/api/public/**").permitAll()
-                               .requestMatchers("/api/**").permitAll()
-                                .requestMatchers("/api/test/**").permitAll()
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/images/**").permitAll()
-                                .anyRequest().authenticated()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // 1. Enable CORS and disable CSRF (if not using sessions)
+                .cors(withDefaults()) // Uses your CorsConfig
+                .csrf(csrf -> csrf.disable()) // Disable if using JWT/STATELESS
+
+                // 2. Exception handling
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(unauthorizedHandler)
+                )
+
+                // 3. Session management
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // For JWT
+                )
+
+                // 4. Authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                // 5. Authentication provider
+                .authenticationProvider(authenticationProvider())
+
+                // 6. JWT filter
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+
+                // 7. Headers
+                .headers(headers -> headers
+                        .frameOptions(frameOptionsConfig ->
+                                frameOptionsConfig.sameOrigin()
+                        )
+                        // Add these for H2 Console if needed
+                        .cacheControl(HeadersConfigurer.CacheControlConfig::disable)
+                        .contentTypeOptions(withDefaults())
                 );
 
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.headers(headers -> headers.frameOptions(
-                frameOptionsConfig -> frameOptionsConfig.sameOrigin()
-        ));
         return http.build();
-
     }
 
     @Bean
