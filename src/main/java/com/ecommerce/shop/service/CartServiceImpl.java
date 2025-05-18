@@ -255,6 +255,7 @@ public class CartServiceImpl implements CartService {
 
     }
 
+    @Transactional
     @Override
     public String createOrUpdateCart(List<CartItemDto> cartItems) {
 //        Get user email
