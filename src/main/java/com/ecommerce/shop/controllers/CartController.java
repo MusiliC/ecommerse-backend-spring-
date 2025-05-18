@@ -2,6 +2,7 @@ package com.ecommerce.shop.controllers;
 
 
 import com.ecommerce.shop.dtos.CartDto;
+import com.ecommerce.shop.dtos.CartItemDto;
 import com.ecommerce.shop.models.Cart;
 import com.ecommerce.shop.repository.CartRepository;
 import com.ecommerce.shop.response.ApiResponse;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +33,16 @@ public class CartController {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @PostMapping("create")
+    public ResponseEntity<ApiResponse> createOrUpdateCart(@RequestBody List<CartItemDto> cartItems) {
+        String res = cartService.createOrUpdateCart(cartItems);
+        return new ResponseEntity<>(
+                new ApiResponse(true, res),
+                HttpStatus.OK
+        );
+    }
+
 
     @PostMapping("products/{productId}/quantity/{quantity}")
     public ResponseEntity<ApiResponse> addProductToCart(@PathVariable Long productId, @PathVariable Integer quantity) {

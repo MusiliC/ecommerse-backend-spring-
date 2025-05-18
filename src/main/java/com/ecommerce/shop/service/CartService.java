@@ -2,6 +2,7 @@ package com.ecommerce.shop.service;
 
 
 import com.ecommerce.shop.dtos.CartDto;
+import com.ecommerce.shop.dtos.CartItemDto;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -19,4 +20,6 @@ public interface CartService {
     String deleteProductFromCart(Long cartId, Long productId);
 
     void updateProductsInCart(Long cartId, Long productId);
+
+    String createOrUpdateCart(List<CartItemDto> cartItems);
 }
